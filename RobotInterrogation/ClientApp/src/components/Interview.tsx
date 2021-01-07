@@ -68,7 +68,7 @@ export const Interview: React.FunctionComponent<RouteComponentProps<{ id: string
                     const confirm = () => connection!.invoke('ConfirmPositions');
                     const swap = () => connection!.invoke('SwapPositions');
 
-                    return <InterviewerPositionSelection stay={confirm} swap={swap} players={state.players} />
+                    return <InterviewerPositionSelection stay={confirm} swap={swap}/>
                 case InterviewPosition.Suspect:
                 case InterviewPosition.Spectator:
                     return <PositionSelection position={state.position} />
