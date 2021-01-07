@@ -5,12 +5,15 @@ using RobotInterrogation.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RobotInterrogation.Hubs
 {
     public interface IInterviewMessages
     {
+        Task SetLobbyInformation(string [] players);
+
         Task SetPosition(int position);
 
         Task SetWaitingForPlayer();
@@ -181,6 +184,8 @@ namespace RobotInterrogation.Hubs
                 }
 
             }
+
+            await Clients.Group(session).SetLobbyInformation(interview.Players.Select(p => p.Name).ToArray());
 
             return true;
         }

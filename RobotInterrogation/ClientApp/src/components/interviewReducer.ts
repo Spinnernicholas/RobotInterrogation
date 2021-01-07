@@ -57,6 +57,7 @@ export interface IPacket {
 }
 
 export interface IInterviewState {
+    players: string[];
     position: InterviewPosition;
     turn: InterviewPosition;
     status: InterviewStatus;
@@ -76,6 +77,7 @@ export interface IInterviewState {
 }
 
 export const initialState: IInterviewState = {
+    players: [],
     choice: [],
     duration: 0,
     position: InterviewPosition.None,
@@ -89,6 +91,9 @@ export const initialState: IInterviewState = {
 };
 
 export type InterviewAction = {
+    type: 'set lobby info';
+    players: string[];
+} | {
     type: 'set position';
     position: number;
 } | {
@@ -156,6 +161,11 @@ export type InterviewAction = {
 export function interviewReducer(state: IInterviewState, action: InterviewAction): IInterviewState {
 
     switch (action.type) {
+        case 'set lobby info':
+            return {
+                ...state,
+                players: action.players,
+            }
         case 'set position':
             return {
                 ...state,

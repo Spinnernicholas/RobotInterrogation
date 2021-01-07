@@ -16,18 +16,21 @@ namespace RobotInterrogation.Services
         private static ConcurrentDictionary<string, Interview> Interviews = new ConcurrentDictionary<string, Interview>();
 
         private static Random IdGenerator = new Random();
+        private static Random PlayerNameGenerator = new Random();
 
         private GameConfiguration Configuration { get; }
         private IDGeneration IDs { get; }
+        private PlayerNameGeneration PlayerNames { get; }
         private InterferenceService InterferenceService { get; }
         private ILogger Logger { get; }
 
         public const string LogName = "Interviews";
 
-        public InterviewService(IOptions<GameConfiguration> configuration, IOptions<IDGeneration> idWords, InterferenceService interferenceService, ILoggerFactory logger)
+        public InterviewService(IOptions<GameConfiguration> configuration, IOptions<IDGeneration> idWords, IOptions<PlayerNameGeneration> playerNameGeneration, InterferenceService interferenceService, ILoggerFactory logger)
         {
             Configuration = configuration.Value;
             IDs = idWords.Value;
+            PlayerNames = playerNameGeneration.Value;
             InterferenceService = interferenceService;
             Logger = logger.CreateLogger(LogName);
         }
@@ -77,6 +80,23 @@ namespace RobotInterrogation.Services
             return id;
         }
 
+        private string GeneratePlayerName(Interview interview)
+        {
+            string name;
+
+            lock (PlayerNameGenerator)
+            {
+                int lastNameIndex = PlayerNameGenerator.Next(PlayerNames.LastNames.Length);
+                do
+                {
+                    int firstNameIndex = PlayerNameGenerator.Next(PlayerNames.FirstNames.Length);
+                    name = PlayerNames.FirstNames[firstNameIndex] + " " + PlayerNames.LastNames[lastNameIndex];
+                } while (interview.Players.Exists(p => p.Name == name));
+            }
+
+            return name;
+        }
+
         public string GetInterviewerConnectionID(Interview interview)
         {
             return interview.Players[interview.InterviewerIndex].ConnectionID;
@@ -100,6 +120,7 @@ namespace RobotInterrogation.Services
             var player = new Player();
             player.ConnectionID = connectionID;
             Players[connectionID] = player;
+            player.Name = GeneratePlayerName(interview);
             interview.Players.Add(player);
 
             if (interview.InterviewerIndex == -1)

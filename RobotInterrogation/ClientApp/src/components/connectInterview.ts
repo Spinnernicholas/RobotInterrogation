@@ -7,6 +7,13 @@ import { IInterviewQuestion } from './interviewParts/elements/InterviewQuestion'
 export async function connectInterview(session: string, dispatch: Dispatch<InterviewAction>) {
     const connection = connectSignalR('/hub/Interview');
 
+    connection.on('SetLobbyInformation', (players: string[]) => {
+        dispatch({
+            type: 'set lobby info',
+            players,
+        });
+    });
+
     connection.on('SetPosition', (position: number) => {
         dispatch({
             type: 'set position',
